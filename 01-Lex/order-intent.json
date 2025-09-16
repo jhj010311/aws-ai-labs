@@ -1,0 +1,124 @@
+{
+  "intentName": "OrderDrink",
+  "description": "음료 주문 인텐트",
+  "sampleUtterances": [
+    {
+      "utterance": "{drinkType} {drinkSize} 사이즈로 {quantity}개 주문할게요"
+    },
+    {
+      "utterance": "{drinkType} {drinkSize}로 주세요"
+    },
+    {
+      "utterance": "{drinkType} 하나 주문하고 싶어요"
+    },
+    {
+      "utterance": "{drinkSize} {drinkType} {quantity}잔 부탁드려요"
+    },
+    {
+      "utterance": "{drinkType} 주문할게요"
+    },
+    {
+      "utterance": "{drinkType} {quantity}개 주세요"
+    }
+  ],
+  "slots": [
+    {
+      "slotName": "drinkType",
+      "description": "주문할 음료 종류",
+      "slotTypeName": "DrinkType",
+      "valueElicitationSetting": {
+        "slotConstraint": "Required",
+        "promptSpecification": {
+          "messageGroups": [
+            {
+              "message": {
+                "plainTextMessage": {
+                  "value": "어떤 음료를 주문하시겠어요? (아메리카노, 라떼, 카푸치노, 프라푸치노)"
+                }
+              }
+            }
+          ],
+          "maxRetries": 2
+        }
+      }
+    },
+    {
+      "slotName": "drinkSize",
+      "description": "음료 사이즈",
+      "slotTypeName": "DrinkSize",
+      "valueElicitationSetting": {
+        "slotConstraint": "Required",
+        "promptSpecification": {
+          "messageGroups": [
+            {
+              "message": {
+                "plainTextMessage": {
+                  "value": "사이즈는 어떻게 하시겠어요? (톨, 그란데, 벤티)"
+                }
+              }
+            }
+          ],
+          "maxRetries": 2
+        }
+      }
+    },
+    {
+      "slotName": "quantity",
+      "description": "수량",
+      "slotTypeName": "AMAZON.Number",
+      "valueElicitationSetting": {
+        "slotConstraint": "Required",
+        "promptSpecification": {
+          "messageGroups": [
+            {
+              "message": {
+                "plainTextMessage": {
+                  "value": "몇 개 주문하시겠어요?"
+                }
+              }
+            }
+          ],
+          "maxRetries": 2
+        }
+      }
+    }
+  ],
+  "intentConfirmationSetting": {
+    "promptSpecification": {
+      "messageGroups": [
+        {
+          "message": {
+            "plainTextMessage": {
+              "value": "{drinkType} {drinkSize} 사이즈 {quantity}개 주문하시는 게 맞나요?"
+            }
+          }
+        }
+      ],
+      "maxRetries": 2
+    },
+    "declinationResponse": {
+      "messageGroups": [
+        {
+          "message": {
+            "plainTextMessage": {
+              "value": "주문이 취소되었습니다. 다시 주문해주세요."
+            }
+          }
+        }
+      ]
+    }
+  },
+  "intentClosingSetting": {
+    "closingResponse": {
+      "messageGroups": [
+        {
+          "message": {
+            "plainTextMessage": {
+              "value": "주문이 완료되었습니다! {drinkType} {drinkSize} 사이즈 {quantity}개를 준비해드리겠습니다."
+            }
+          }
+        }
+      ]
+    }
+  }
+}

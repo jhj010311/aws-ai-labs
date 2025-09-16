@@ -1,0 +1,64 @@
+
+# 첫 번째 리뷰 감정 분석
+aws comprehend detect-sentiment \
+    --text "이 제품 정말 만족해요! 배송도 빠르고 품질도 훌륭합니다." \
+    --language-code ko
+
+    {
+    "Sentiment": "POSITIVE",
+    "SentimentScore": {
+        "Positive": 0.9998718500137329,
+        "Negative": 3.537701923050918e-05,
+        "Neutral": 8.553914085496217e-05,
+        "Mixed": 7.248132078530034e-06
+    }
+}
+
+# 두 번째 리뷰 감정 분석
+aws comprehend detect-sentiment \
+    --text "배송이 너무 늦어서 실망했어요. 제품은 괜찮은데 서비스가 아쉽네요." \
+    --language-code ko
+
+    {
+    "Sentiment": "MIXED",
+    "SentimentScore": {
+        "Positive": 0.0003213952004443854,
+        "Negative": 0.3720473051071167,
+        "Neutral": 3.7582984077744186e-05,
+        "Mixed": 0.6275936961174011
+    }
+}
+
+
+
+
+
+
+
+# 영어 리뷰
+aws comprehend detect-dominant-language \
+    --text "This product is amazing! Fast delivery and great quality."
+
+    {
+    "Languages": [
+        {
+            "LanguageCode": "en",
+            "Score": 0.9538828134536743
+        }
+    ]
+}
+
+# 스페인어 리뷰
+aws comprehend detect-dominant-language \
+    --text "Este producto es increíble. Lo recomiendo mucho."
+
+# 일본어 리뷰
+aws comprehend detect-dominant-language \
+    --text "この商품は本当に素晴らしいです。配送も早くて満足しています。"
+
+# 한국어 리뷰
+aws comprehend detect-dominant-language \
+    --text "이 제품 정말 좋아요! 다음에도 구매할 예정입니다."
+
+
+
