@@ -62,3 +62,159 @@ aws comprehend detect-dominant-language \
 
 
 
+
+
+
+
+# 상세한 리뷰에서 핵심 구문 추출
+aws comprehend detect-key-phrases \
+    --text "이 무선 이어폰의 음질이 정말 뛰어나고 배터리 수명도 길어서 만족합니다. 노이즈 캔슬링 기능도 훌륭하고 착용감이 편안해요." \
+    --language-code ko
+
+
+# 부정적 리뷰에서 핵심 구문 추출
+aws comprehend detect-key-phrases \
+    --text "배송 포장이 너무 허술해서 제품이 파손되어 도착했습니다. 고객 서비스 응답도 늦고 환불 처리가 복잡해요." \
+    --language-code ko
+
+
+
+
+
+
+# 문장 구조 분석
+aws comprehend detect-syntax \
+    --text "고객님께서 주문하신 제품이 내일 오전에 배송될 예정입니다." \
+    --language-code ko
+
+
+
+
+# S3 버킷 생성 (버킷 이름은 고유해야 함)
+aws s3 mb s3://my-comprehend-bucket-$(date +%s)
+
+# 분석할 텍스트 파일들을 S3에 업로드
+aws s3 cp customer_reviews.txt s3://my-comprehend-bucket-$(date +%s)/input/
+
+# 감정 분석 배치 작업 시작
+aws comprehend start-sentiment-detection-job \
+    --job-name "customer-sentiment-analysis" \
+    --language-code ko \
+    --input-data-config S3Uri=s3://my-comprehend-bucket-$(date +%s)/input/ \
+    --output-data-config S3Uri=s3://my-comprehend-bucket-$(date +%s)/output/ \
+    --data-access-role-arn arn:aws:iam::YOUR-ACCOUNT-ID:role/ComprehendRole
+
+
+
+
+대량 텍스트 분석을 위한 배치 작업
+
+# S3 버킷 생성 (버킷 이름은 고유해야 함)
+aws s3 mb s3://my-comprehend-bucket-$(date +%s)
+
+>> aws s3 mb s3://sesac-jhj-comprehend-bucket-$(date +%s)
+
+>>>> sesac-jhj-comprehend-bucket-1758074441
+
+
+# 분석할 텍스트 파일들을 S3에 업로드
+aws s3 cp customer_reviews.txt s3://my-comprehend-bucket-$(date +%s)/input/
+
+    >> aws s3 cp customer_reviews.txt s3://sesac-jhj-comprehend-bucket-1758074441/input/
+        upload: ./customer_reviews.txt to s3://sesac-jhj-comprehend-bucket-1758074441/input/customer_reviews.txt
+
+
+
+# 감정 분석 배치 작업 시작
+aws comprehend start-sentiment-detection-job \
+    --job-name "customer-sentiment-analysis" \
+    --language-code ko \
+    --input-data-config S3Uri=s3://my-comprehend-bucket-$(date +%s)/input/ \
+    --output-data-config S3Uri=s3://my-comprehend-bucket-$(date +%s)/output/ \
+    --data-access-role-arn arn:aws:iam::YOUR-ACCOUNT-ID:role/ComprehendRole
+
+
+$ aws comprehend start-sentiment-detection-job \
+--job-name "customer-sentiment-analysis" \
+--language-code ko \
+--input-data-config S3Uri=s3://sesac-jhj-comprehend-bucket-1758074441/input/ \
+--output-data-config S3Uri=s3://sesac-jhj-comprehend-bucket-1758074441/output/ \
+--data-access-role-arn arn:aws:iam::857360183365:role/ComprehendRole
+
+{
+    "JobId": "425d68296e13c813207433f128d18932",
+    "JobArn": "arn:aws:comprehend:us-east-1:857360183365:sentiment-detection-job/425d68296e13c813207433f128d18932",
+    "JobStatus": "SUBMITTED"
+}
+
+
+
+
+
+analyze_review.sh 추가
+chmod +x analyze_review.sh
+
+$ ./analyze_review.sh "이 제품 정말 만족해요! 품질도 좋고 배송도 빨라요."
+=== 리뷰 분석 결과 ===
+텍스트: 이 제품 정말 만족해요! 품질도 좋고 배송도 빨라요.
+
+1. 언어 감지:
+------------------------
+|DetectDominantLanguage|
++----------------------+
+|  ko                  |
+|  0.7407407164573669  |
++----------------------+
+
+2. 감정 분석:
+---------------------------
+|     DetectSentiment     |
++-------------------------+
+|  POSITIVE               |
+|  0.99988853931427       |
+|  3.658432251540944e-05  |
++-------------------------+
+
+3. 개체명 인식:
+
+4. 핵심 구문:
+-----------------------------------
+|        DetectKeyPhrases         |
++----------+----------------------+
+|  이 제품 |  0.9996954798698425  |
+|  품질    |  0.9999147653579712  |
+|  배송    |  0.9994402527809143  |
+|  요      |  0.792667031288147   |
++----------+----------------------+
+
+
+
+
+
+cat > batch_analysis.sh << 'EOF'
+chmod +x batch_analysis.sh
+./batch_analysis.sh
+
+$ ./batch_analysis.sh
+분석 완료! analysis_results.csv 파일을 확인하세요.
+
+
+
+cat > monitor_reviews.sh << 'EOF'
+chmod +x monitor_reviews.sh
+
+$ ./monitor_reviews.sh 
+실시간 리뷰 모니터링을 시작합니다...
+부정적 리뷰가 감지되면 알림이 표시됩니다.
+새 리뷰를 입력하세요 (종료하려면 'quit' 입력):
+믿고 사는 곳!
+✅ 리뷰 감정: POSITIVE
+---
+새 리뷰를 입력하세요 (종료하려면 'quit' 입력):
+어째 서비스가 계속 불안정하네요. 다음부턴 다른 곳에 가볼까 합니다.
+🚨 부정적 리뷰 감지! 즉시 대응이 필요합니다.
+부정 점수: 0.9993625283241272
+---
+새 리뷰를 입력하세요 (종료하려면 'quit' 입력):
+quit
+
