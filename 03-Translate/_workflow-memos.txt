@@ -1,0 +1,95 @@
+aws iam에 TranslateFullAccess 부여(간소화 가능)
+
+
+aws translate translate-text \
+    --source-language-code ja \
+    --target-language-code ko \
+    --text "こんにちは、注文した商品が壊れて届きました。返品したいです。"
+
+$ aws translate translate-text \
+    --source-language-code ja \
+    --target-language-code ko \
+    --text "こんにちは、注文した商品が壊れて届きました。返品したいです。"
+{
+    "TranslatedText": "안녕하세요, 주문한 상품이 깨진 상태로 도착했습니다.반품하고 싶어요.",
+    "SourceLanguageCode": "ja",
+    "TargetLanguageCode": "ko"
+}
+
+
+
+$ aws translate translate-text \
+    --source-language-code auto \       // 이곳을 auto로 놓는 것으로 언어를 자동감지
+    --target-language-code ko \
+    --text "Bonjour, je voudrais retourner mon achat"
+{
+    "TranslatedText": "안녕하세요, 구매한 제품을 반품하고 싶습니다.",
+    "SourceLanguageCode": "fr",
+    "TargetLanguageCode": "ko"
+}
+
+
+
+
+./translate_inquiries.sh
+=== 고객 문의 번역 시스템 ===
+
+1. 영어 고객 문의:
+원문: I received the wrong item. I ordered a blue shirt but got a red one.
+잘못된 상품을 받았습니다.파란색 셔츠를 주문했는데 빨간색 셔츠를 받았어요.
+
+2. 일본어 고객 문의:
+원문: 配送が遅れています。いつ届く予定ですか？
+배송이 지연되었습니다.언제 도착할 것으로 예상하세요?
+
+3. 중국어 고객 문의:
+원문: 我想取消我的订单，还没有发货。
+주문을 취소하고 싶은데 아직 배송되지 않았습니다.
+
+
+
+
+
+$ aws translate import-terminology \
+    --name ecommerce-terms \
+    --merge-strategy OVERWRITE \
+    --terminology-data file://terminology.csv \
+    --data-format CSV
+
+usage: aws [options] <command> <subcommand> [<subcommand> ...] [parameters]
+To see help text, you can run:
+
+  aws help
+  aws <command> help
+  aws <command> <subcommand> help
+
+aws: error: the following arguments are required: --data-file
+
+
+수정
+aws translate import-terminology \
+    --name ecommerce-terms \
+    --merge-strategy OVERWRITE \
+    --data-file file://terminology.csv \
+    --data-format CSV
+
+
+추가수정
+aws translate import-terminology \
+    --name ecommerce-terms \
+    --merge-strategy OVERWRITE \
+    --data-file fileb://terminology.csv \
+    --terminology-data Format=CSV
+
+
+$ aws s3 mb s3://sesac-jhj-translate-bucket-$(date +%s)
+make_bucket: sesac-jhj-translate-bucket-1758079411
+
+
+aws translate start-text-translation-job \
+    --job-name review-translation-$(date +%s) \
+    --source-language-code en \
+    --target-language-codes ko \
+    --input-data-config S3Uri=s3://sesac-jhj-translate-bucket-1758079411/input/,ContentType=text/plain \
+    --output-data-config S3Uri=s3://sesac-jhj-translate-bucket-1758079411/output/ \
+    --data-access-role-arn arn:aws:iam::857360183365:role/service-role/AmazonTranslateServiceRole
