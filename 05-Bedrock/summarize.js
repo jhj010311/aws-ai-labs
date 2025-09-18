@@ -23,6 +23,7 @@ const summaryTypes = [
 for (const [type, description] of summaryTypes) {
   console.log(`\n=== ${description} ===`);
 
+  // 요청 바디 구성
   const prompt = {
     anthropic_version: "bedrock-2023-05-31",
     max_tokens: 1500,
@@ -34,8 +35,9 @@ for (const [type, description] of summaryTypes) {
     ],
   };
 
-  const body = JSON.stringify(prompt);
+  const bodyFile = `body-${type}.json`;
   const outputFile = `tmp-${type}.json`;
+  writeFileSync(bodyFile, JSON.stringify(prompt), "utf-8");
 
   try {
     execSync(
@@ -44,11 +46,13 @@ for (const [type, description] of summaryTypes) {
         --content-type application/json \
         --accept application/json \
         --cli-binary-format raw-in-base64-out \
-        --body '${body.replace(/'/g, "'\\''")}' \
-        ${outputFile}`,
-      { stdio: "inherit" } // 실행 로그도 같이 보여주기
+        --body file://${bodyFile} \
+        --output json \
+        --outfile ${outputFile}`,
+      { stdio: "inherit" }
     );
 
+    // 결과 파싱
     const responseJson = readFileSync(outputFile, "utf-8");
     const response = JSON.parse(responseJson);
     const decoded = Buffer.from(response.body, "base64").toString("utf-8");

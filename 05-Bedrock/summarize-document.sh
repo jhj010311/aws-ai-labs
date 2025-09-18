@@ -47,7 +47,7 @@ for summary_type in "${summary_types[@]}"; do
   	--cli-binary-format raw-in-base64-out \
 	  > summary-response.json
 
-	# base64 디코딩 → JSON 파싱
+	# body 추출
 	response_b64=$(jq -r '.body' summary-response.json)
 
 	if [ -z "$response_b64" ] || [ "$response_b64" = "null" ]; then
@@ -55,8 +55,15 @@ for summary_type in "${summary_types[@]}"; do
 		exit 1
 	fi
 
-	echo "$response_b64" | base64 --decode > decoded.json
-
+	# base64인지 확인 후 디코딩
+	if echo "$response_b64" | grep -Eq '^eyJ|^[A-Za-z0-9+/=]+$'; then
+		# base64일 경우
+		echo "$response_b64" | base64 --decode > decoded.json
+	else
+		# 이미 json일 경우
+		echo "$response_b64" > decoded.json
+	fi
+	
 	# 구조 확인 (디버깅용)
 	echo "=== 디코딩된 응답 ==="
 	cat decoded.json
