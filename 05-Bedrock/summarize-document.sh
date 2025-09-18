@@ -39,19 +39,37 @@ for summary_type in "${summary_types[@]}"; do
   }' > summary-prompt.json
 
   # API 호출
-  aws bedrock-runtime invoke-model \
-    --model-id anthropic.claude-3-sonnet-20240229-v1:0 \
-    --content-type application/json \
-    --accept application/json \
-    --body file://summary-prompt.json \
-    --cli-binary-format raw-in-base64-out \
-    summary-response.json
+	aws bedrock-runtime invoke-model \
+  	--model-id anthropic.claude-3-sonnet-20240229-v1:0 \
+  	--content-type application/json \
+  	--accept application/json \
+  	--body file://summary-prompt.json \
+  	--cli-binary-format raw-in-base64-out \
+	  > summary-response.json
 
-  # 결과 출력
-  summary_result=$(jq -r '.body' summary-response.json | base64 -d | jq -er '.content[0].text' 2>/dev/null || echo "")
-  echo "$summary_result"
+	# base64 디코딩 → JSON 파싱
+	response_b64=$(jq -r '.body' summary-response.json)
 
-  echo "$summary_result" > "summary-$type.txt"
+	if [ -z "$response_b64" ] || [ "$response_b64" = "null" ]; then
+		echo "⚠️ 응답에 body가 없습니다. summary-response.json을 확인하세요."
+		exit 1
+	fi
+
+	echo "$response_b64" | base64 --decode > decoded.json
+
+	# 구조 확인 (디버깅용)
+	echo "=== 디코딩된 응답 ==="
+	cat decoded.json
+
+	summary_result=$(jq -r '.content[0].text // empty' decoded.json)
+
+	if [ -z "$summary_result" ]; then
+		echo "⚠️ 요약 결과가 비어 있습니다. decoded.json 내용을 확인하세요."
+		exit 1
+	fi
+
+	echo "$summary_result"
+	echo "$summary_result" > "summary-$type.txt"
   echo "(결과가 summary-$type.txt 파일로 저장되었습니다)"
 
   rm summary-prompt.json summary-response.json

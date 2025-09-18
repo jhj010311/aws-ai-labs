@@ -63,3 +63,35 @@ jq: parse error: Invalid numeric literal at EOF at line 1, column 3
 
 
 뭐 예제마다 ASCII 말곤 넣지 말라고 에러 띄우면서 취소되니 예제 진행해볼 수가 없음
+
+
+
+
+chatbot.sh 생성
+(일부 수정)
+
+$
+chmod +x chatbot.sh
+./chatbot.sh
+=== 제품 상담 챗봇 ===
+제품에 대해 궁금한 것을 물어보세요. (종료: 'quit')
+----------------------------------------
+고객: 스마트워치의 배터리는 얼마나 지속되나요?
+
+An error occurred (ValidationException) when calling the InvokeModel operation: Malformed input request, please reformat your input and try again.
+cat: chat-response.json: No such file or directory
+상담원: 
+
+rm: cannot remove 'chat-response.json': No such file or directory
+고객:
+
+
+
+
+
+
+
+market-report.txt 생성
+
+summarize-document.sh 생성
+
