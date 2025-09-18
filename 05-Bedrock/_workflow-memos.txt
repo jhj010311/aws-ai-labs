@@ -95,3 +95,31 @@ market-report.txt 생성
 
 summarize-document.sh 생성
 
+gpt 검수로 bash 도중 에러 발생하는 것을 해결:
+jq: parse error: Invalid string: control characters from U+0000 through U+001F must be escaped at line 40, column 487
+
+An error occurred (ValidationException) when calling the InvokeModel operation: Value null at 'body' failed to satisfy constraint: Member must not be null
+cat: summary-response.json: No such file or directory
+
+(결과가 summary-bullet.txt 파일로 저장되었습니다)
+rm: cannot remove 'summary-response.json': No such file or directory
+
+
+
+1차수정 후 bash 도중 에러메세지가 발생하진 않지만
+파일은 비어있음
+
+
+
+2차수정
+=== 임원용 요약 (핵심 수치와 결론 중심, 3-4 문장) ===
+{
+    "contentType": "application/json"
+}
+❌ 요약 중 오류 발생: The first argument must be of type string or an instance of Buffer, ArrayBuffer, or Array or an Array-like Object. Received undefined
+
+---
+
+요약 자체는 제대로 들어왔음
+
+
