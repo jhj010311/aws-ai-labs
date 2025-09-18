@@ -10,7 +10,6 @@ if (!existsSync(inputFile)) {
 }
 
 const documentContent = readFileSync(inputFile, "utf-8");
-
 console.log(`원본 문서 길이: ${Buffer.byteLength(documentContent, "utf-8")} 문자`);
 console.log("요약 중...");
 
@@ -22,7 +21,7 @@ const summaryTypes = [
 
 for (const [type, description] of summaryTypes) {
   console.log(`\n=== ${description} ===`);
-
+  
   // 요청 바디 구성
   const prompt = {
     anthropic_version: "bedrock-2023-05-31",
@@ -37,9 +36,11 @@ for (const [type, description] of summaryTypes) {
 
   const bodyFile = `body-${type}.json`;
   const outputFile = `tmp-${type}.json`;
+  
   writeFileSync(bodyFile, JSON.stringify(prompt), "utf-8");
 
   try {
+    // 수정된 부분: --outfile을 제거하고 마지막에 outputFile을 위치 매개변수로 추가
     execSync(
       `aws bedrock-runtime invoke-model \
         --model-id anthropic.claude-3-sonnet-20240229-v1:0 \
@@ -47,32 +48,51 @@ for (const [type, description] of summaryTypes) {
         --accept application/json \
         --cli-binary-format raw-in-base64-out \
         --body file://${bodyFile} \
-        --output json \
-        --outfile ${outputFile}`,
+        ${outputFile}`,
       { stdio: "inherit" }
     );
 
     // 결과 파싱
     const responseJson = readFileSync(outputFile, "utf-8");
+    console.log("Raw response:", responseJson); // 디버깅용
+    
     const response = JSON.parse(responseJson);
-    const decoded = Buffer.from(response.body, "base64").toString("utf-8");
-    const parsed = JSON.parse(decoded);
-    const summary = parsed.content?.[0]?.text ?? "";
-
-    if (!summary.trim()) {
+    console.log("Parsed response:", response); // 디버깅용
+    
+    // 응답 구조 확인 후 적절히 파싱
+    let summary = "";
+    
+    if (response.body) {
+      // Base64 인코딩된 경우
+      const decoded = Buffer.from(response.body, "base64").toString("utf-8");
+      const parsed = JSON.parse(decoded);
+      summary = parsed.content?.[0]?.text ?? "";
+    } else if (response.content) {
+      // 직접 content가 있는 경우
+      summary = Array.isArray(response.content) ? response.content[0]?.text : response.content;
+    } else if (typeof response === 'string') {
+      // 문자열로 직접 반환되는 경우
+      summary = response;
+    } else {
+      // 기타 경우 - 전체 응답을 출력해서 구조 파악
+      console.error("예상치 못한 응답 구조:", JSON.stringify(response, null, 2));
+      continue;
+    }
+    
+    if (!summary || !summary.trim()) {
       console.error("⚠️ 요약 결과가 비어 있습니다. 응답을 확인하세요.");
-      console.error(decoded);
+      console.error("Response:", JSON.stringify(response, null, 2));
       continue;
     }
 
     console.log(summary);
     writeFileSync(`summary-${type}.txt`, summary, "utf-8");
     console.log(`(결과가 summary-${type}.txt 파일로 저장되었습니다)`);
-
+    
   } catch (err) {
     console.error("❌ 요약 중 오류 발생:", err.message);
   }
-
+  
   console.log("\n---");
 }
 
