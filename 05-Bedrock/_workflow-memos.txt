@@ -1,0 +1,65 @@
+- Python 3.7+ 설치
+- jq 설치 (JSON 파싱용)
+sudo apt-get install jq -y
+
+
+$ aws bedrock list-foundation-models
+{
+    "modelSummaries": [
+        {
+            "modelArn": "arn:aws:bedrock:us-east-1::foundation-model/twelvelabs.marengo-embed-2-7-v1:0",
+            "modelId": "twelvelabs.marengo-embed-2-7-v1:0",
+            "modelName": "Marengo Embed v2.7",
+            "providerName": "TwelveLabs",
+            "inputModalities": [
+                "TEXT",
+                "IMAGE",
+                "SPEECH",
+                "VIDEO"
+            ],
+
+
+
+
+예시 데이터 파일 생성 (product-prompt.json):
+
+
+
+# 요청 본문을 Base64로 인코딩하여 API 호출
+aws bedrock-runtime invoke-model \
+  --model-id anthropic.claude-3-haiku-20240307-v1:0 \
+  --content-type application/json \
+  --accept application/json \
+  --body "$(cat product-prompt.json | jq -r .body | jq -c .)" \
+  response.json
+
+# 결과 확인
+cat response.json | jq -r '.body' | base64 -d | jq -r '.content[0].text'
+
+
+
+error : string argument should contain only ASCII characters
+
+수정 : 
+aws bedrock-runtime invoke-model \
+  --model-id anthropic.claude-3-haiku-20240307-v1:0 \
+  --content-type application/json \
+  --accept application/json \
+  --body "$(jq -c .body product-prompt.json)" \
+  --cli-binary-format raw-in-base64-out \
+  response.json
+
+
+error:
+$ cat response.json | jq -r '.body' | base64 -d | jq -r '.content[0].text'
+jq: parse error: Invalid numeric literal at EOF at line 1, column 3
+
+
+
+
+### 1.2 배치 처리를 위한 스크립트
+
+**스크립트 파일 생성** (`generate-marketing.sh`):
+
+
+뭐 예제마다 ASCII 말곤 넣지 말라고 에러 띄우면서 취소되니 예제 진행해볼 수가 없음

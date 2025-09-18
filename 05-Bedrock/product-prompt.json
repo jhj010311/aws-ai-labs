@@ -1,0 +1,15 @@
+{
+  "modelId": "anthropic.claude-3-haiku-20240307-v1:0",
+  "contentType": "application/json",
+  "accept": "application/json",
+  "body": {
+    "anthropic_version": "bedrock-2023-05-31",
+    "max_tokens": 1000,
+    "messages": [
+      {
+        "role": "user",
+        "content": "다음 제품에 대한 매력적인 마케팅 문구를 작성해주세요:\n\n제품명: 스마트 무선 이어폰\n특징: 노이즈 캔슬링, 24시간 배터리, 방수 기능\n타겟: 20-30대 직장인\n\n요구사항:\n- 감정적 어필 포함\n- 3-4줄로 간결하게\n- 행동 유도 문구 포함"
+      }
+    ]
+  }
+}
