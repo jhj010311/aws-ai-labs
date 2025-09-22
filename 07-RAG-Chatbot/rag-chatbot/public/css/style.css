@@ -1,0 +1,253 @@
+/* 기본 스타일 리셋 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f5f7fb;
+    color: #333;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    grid-template-rows: auto 1fr;
+    grid-gap: 20px;
+    height: 100vh;
+}
+
+header {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+header h1 {
+    font-size: 1.8rem;
+    color: #2c3e50;
+}
+
+.status-container {
+    display: flex;
+    align-items: center;
+}
+
+.status-label {
+    margin-right: 10px;
+    font-weight: 500;
+}
+
+.status-indicator {
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 0.9rem;
+    background-color: #e0e0e0;
+}
+
+.status-indicator.online {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status-indicator.offline {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.chat-container {
+    grid-column: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.chat-messages {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.message {
+    margin-bottom: 20px;
+    max-width: 80%;
+}
+
+.message.user {
+    margin-left: auto;
+    background-color: #e3f2fd;
+    border-radius: 18px 18px 0 18px;
+    padding: 12px 16px;
+}
+
+.message.bot {
+    margin-right: auto;
+    background-color: #f5f5f5;
+    border-radius: 18px 18px 18px 0;
+    padding: 12px 16px;
+}
+
+.message-content {
+    margin-bottom: 5px;
+}
+
+.sources {
+    font-size: 0.8rem;
+    margin-top: 8px;
+    color: #555;
+}
+
+.source-item {
+    margin-bottom: 3px;
+}
+
+.input-container {
+    display: flex;
+    padding: 15px;
+    border-top: 1px solid #e0e0e0;
+}
+
+#user-input {
+    flex: 1;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    outline: none;
+}
+
+#user-input:focus {
+    border-color: #2196F3;
+}
+
+#send-button {
+    margin-left: 10px;
+    padding: 0 20px;
+    background-color: #2196F3;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.2s;
+}
+
+#send-button:hover {
+    background-color: #0d8bf2;
+}
+
+.document-panel {
+    grid-column: 2;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+}
+
+.panel-header {
+    padding: 15px;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    align-items: center;
+}
+
+.panel-header h2 {
+    font-size: 1.2rem;
+    flex: 1;
+}
+
+.panel-header button {
+    padding: 6px 12px;
+    background-color: #f0f0f0;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    margin-left: 10px;
+    transition: background-color 0.2s;
+}
+
+.panel-header button:hover {
+    background-color: #e0e0e0;
+}
+
+#reindex-button {
+    background-color: #ff9800;
+    color: white;
+}
+
+#reindex-button:hover {
+    background-color: #e68900;
+}
+
+.document-list {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+}
+
+.document-item {
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+    border-left: 3px solid #2196F3;
+}
+
+.document-name {
+    font-weight: 500;
+    margin-bottom: 5px;
+    word-break: break-all;
+}
+
+.document-info {
+    font-size: 0.8rem;
+    color: #666;
+}
+
+.loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    color: #666;
+}
+
+.error-message {
+    color: #d32f2f;
+    padding: 10px;
+    background-color: #ffebee;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+@media (max-width: 768px) {
+    .container {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr auto;
+    }
+
+    .chat-container {
+        grid-column: 1;
+        grid-row: 2;
+    }
+
+    .document-panel {
+        grid-column: 1;
+        grid-row: 3;
+        max-height: 300px;
+    }
+}
